@@ -1,7 +1,15 @@
 package com.buoi4.baoduy.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "categories")
 public class Category {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
     private String name;
 
     public Category() {
@@ -9,6 +17,10 @@ public class Category {
 
     public Category(Integer id, String name) {
         this.id = id;
+        this.name = name;
+    }
+
+    public Category(String name) {
         this.name = name;
     }
 

@@ -3,62 +3,376 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/layout}">
 
-<div layout:fragment="content" class="container mt-5">
+<div layout:fragment="content">
+<style>
+    :root {
+        --bg: #0b0f1a;
+        --surface: #111827;
+        --surface2: #1a2235;
+        --border: #1e2d45;
+        --accent: #3b82f6;
+        --accent2: #06b6d4;
+        --success: #10b981;
+        --danger: #f43f5e;
+        --text: #e2e8f0;
+        --text-muted: #64748b;
+    }
 
-    <div class="card shadow-lg">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">🛒 Form Sản Phẩm</h4>
+    * { box-sizing: border-box; font-family: 'Sora', sans-serif; }
+
+    @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap');
+
+    .form-page {
+        min-height: 100vh;
+        background: var(--bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .form-card {
+        width: 100%;
+        max-width: 560px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+        animation: slideUp 0.4s ease both;
+    }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(24px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-header {
+        padding: 1.75rem 2rem;
+        background: linear-gradient(135deg, #1e3a5f, #0f2744);
+        border-bottom: 1px solid var(--border);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .form-header::before {
+        content: '';
+        position: absolute;
+        top: -40px; right: -40px;
+        width: 140px; height: 140px;
+        background: radial-gradient(circle, rgba(59,130,246,0.2), transparent 70%);
+        border-radius: 50%;
+    }
+
+    .form-header h4 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #fff;
+        letter-spacing: -0.01em;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-header h4 .icon {
+        font-size: 1.4rem;
+    }
+
+    .form-body {
+        padding: 2rem;
+    }
+
+    .field {
+        margin-bottom: 1.4rem;
+    }
+
+    .field label {
+        display: block;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+    }
+
+    .field input,
+    .field select {
+        width: 100%;
+        padding: 0.7rem 1rem;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text);
+        font-size: 0.9rem;
+        font-family: 'Sora', sans-serif;
+        transition: all 0.2s ease;
+        outline: none;
+        appearance: none;
+    }
+
+    .field input:focus,
+    .field select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+        background: #1e2d45;
+    }
+
+    .field input::placeholder {
+        color: #3d5070;
+    }
+
+    .field select option {
+        background: var(--surface2);
+        color: var(--text);
+    }
+
+    /* Select arrow */
+    .select-wrap {
+        position: relative;
+    }
+
+    .select-wrap::after {
+        content: '▾';
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        pointer-events: none;
+        font-size: 0.85rem;
+    }
+
+    /* File upload */
+    .file-upload-wrap {
+        position: relative;
+    }
+
+    .file-upload-wrap input[type="file"] {
+        padding: 0.6rem 1rem;
+        cursor: pointer;
+        color: var(--text-muted);
+    }
+
+    .file-upload-wrap input[type="file"]::file-selector-button {
+        background: linear-gradient(135deg, var(--accent), #2563eb);
+        color: #fff;
+        border: none;
+        padding: 0.4rem 0.9rem;
+        border-radius: 6px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-right: 0.75rem;
+        font-family: 'Sora', sans-serif;
+        transition: opacity 0.2s;
+    }
+
+    .file-upload-wrap input[type="file"]::file-selector-button:hover {
+        opacity: 0.85;
+    }
+
+    /* Error */
+    .error-msg {
+        font-size: 0.78rem;
+        color: #fb7185;
+        margin-top: 0.35rem;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .error-msg::before { content: '⚠ '; }
+
+    /* Image preview */
+    #preview-wrap {
+        margin-top: 0.75rem;
+        display: none;
+    }
+
+    #preview-wrap img {
+        width: 100px;
+        height: 75px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+    }
+
+    /* Divider */
+    .divider {
+        height: 1px;
+        background: var(--border);
+        margin: 1.75rem 0;
+    }
+
+    /* Buttons */
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.65rem 1.25rem;
+        background: transparent;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text-muted);
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        font-family: 'Sora', sans-serif;
+    }
+
+    .btn-back:hover {
+        border-color: #3d5070;
+        color: var(--text);
+        background: var(--surface2);
+    }
+
+    .btn-save {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.65rem 1.75rem;
+        background: linear-gradient(135deg, var(--success), #059669);
+        border: none;
+        border-radius: 10px;
+        color: #fff;
+        font-size: 0.875rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 14px rgba(16,185,129,0.35);
+        font-family: 'Sora', sans-serif;
+    }
+
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16,185,129,0.5);
+    }
+
+    .btn-save:active {
+        transform: translateY(0);
+    }
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<div class="form-page">
+    <div class="form-card">
+
+        <!-- Header -->
+        <div class="form-header">
+            <h4><span class="icon">🛒</span> Form Sản Phẩm</h4>
         </div>
 
-        <div class="card-body">
-
+        <!-- Body -->
+        <div class="form-body">
             <form th:action="@{/products/save}" method="post"
                   enctype="multipart/form-data" th:object="${product}">
 
                 <input type="hidden" th:field="*{id}"/>
 
-                <!-- Tên sản phẩm -->
-                <div class="mb-3">
-                    <label class="form-label">Tên sản phẩm</label>
-                    <input type="text" class="form-control" th:field="*{name}" placeholder="Nhập tên sản phẩm">
-                    <div class="text-danger" th:errors="*{name}"></div>
+                <!-- Tên -->
+                <div class="field">
+                    <label>Tên sản phẩm</label>
+                    <input type="text" th:field="*{name}" placeholder="Nhập tên sản phẩm...">
+                    <div class="error-msg" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
                 </div>
 
                 <!-- Giá -->
-                <div class="mb-3">
-                    <label class="form-label">Giá</label>
-                    <input type="number" class="form-control" th:field="*{price}" placeholder="Nhập giá">
-                    <div class="text-danger" th:errors="*{price}"></div>
+                <div class="field">
+                    <label>Giá (₫)</label>
+                    <div style="position:relative;">
+                        <!-- Input ẩn gửi về server -->
+                        <input type="hidden" th:field="*{price}" id="priceHidden">
+                        <!-- Input hiển thị cho người dùng -->
+                        <input type="text" id="priceDisplay" placeholder="0"
+                               oninput="formatPrice(this)"
+                               style="padding-right: 2.5rem;">
+                        <span style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:0.85rem;pointer-events:none;">₫</span>
+                    </div>
+                    <div class="error-msg" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
                 </div>
 
                 <!-- Ảnh -->
-                <div class="mb-3">
-                    <label class="form-label">Hình ảnh</label>
-                    <input type="file" name="file" class="form-control">
+                <div class="field">
+                    <label>Hình ảnh</label>
+                    <div class="file-upload-wrap">
+                        <input type="file" name="file" accept="image/*" onchange="previewImg(this)">
+                    </div>
+                    <div id="preview-wrap">
+                        <img id="preview-img" src="" alt="preview">
+                    </div>
                 </div>
 
                 <!-- Danh mục -->
-                <div class="mb-3">
-                    <label class="form-label">Danh mục</label>
-                    <select class="form-select" th:field="*{categoryId}">
-                        <option value="">-- Chọn danh mục --</option>
-                        <option th:each="c : ${categories}"
-                                th:value="${c.id}"
-                                th:text="${c.name}">
-                        </option>
-                    </select>
+                <div class="field">
+                    <label>Danh mục</label>
+                    <div class="select-wrap">
+                        <select th:field="*{categoryId}">
+                            <option value="">-- Chọn danh mục --</option>
+                            <option th:each="c : ${categories}"
+                                    th:value="${c.id}"
+                                    th:text="${c.name}">
+                            </option>
+                        </select>
+                    </div>
                 </div>
 
-                <!-- Nút -->
-                <div class="d-flex justify-content-between">
-                    <a href="/products" class="btn btn-secondary">⬅ Quay lại</a>
-                    <button type="submit" class="btn btn-success px-4">💾 Lưu sản phẩm</button>
+                <div class="divider"></div>
+
+                <!-- Actions -->
+                <div class="form-actions">
+                    <a href="/products" class="btn-back">← Quay lại</a>
+                    <button type="submit" class="btn-save">💾 Lưu sản phẩm</button>
                 </div>
 
             </form>
-
         </div>
     </div>
+</div>
+
+<script>
+    // Format giá tiền
+    function formatPrice(input) {
+        // Lấy số thô (bỏ dấu phẩy)
+        let raw = input.value.replace(/[^0-9]/g, '');
+        // Hiển thị có dấu phẩy
+        input.value = raw ? Number(raw).toLocaleString('vi-VN') : '';
+        // Gửi số thô về server
+        document.getElementById('priceHidden').value = raw;
+    }
+
+    // Khi edit sản phẩm: điền sẵn giá vào ô hiển thị
+    window.addEventListener('DOMContentLoaded', () => {
+        const hidden = document.getElementById('priceHidden');
+        const display = document.getElementById('priceDisplay');
+        if (hidden && hidden.value) {
+            display.value = Number(hidden.value).toLocaleString('vi-VN');
+        }
+    });
+
+    function previewImg(input) {
+        const wrap = document.getElementById('preview-wrap');
+        const img = document.getElementById('preview-img');
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                img.src = e.target.result;
+                wrap.style.display = 'block';
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
 
 </div>
 </html>

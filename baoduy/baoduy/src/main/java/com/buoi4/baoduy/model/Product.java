@@ -1,30 +1,22 @@
 package com.buoi4.baoduy.model;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.persistence.*;
 
+@Entity
 public class Product {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NotBlank(message = "Tên sản phẩm không được để trống")
     private String name;
-
-    @Min(value = 1, message = "Giá từ 1 → 999999")
-    @Max(value = 999999, message = "Giá từ 1 → 999999")
-    private Integer price;
-
-    @Size(max = 200, message = "Tên hình ảnh không quá 200 ký tự")
+    private double price;
     private String image;
 
     private Integer categoryId;
 
     public Product() {
     }
-
-    // Getter & Setter đầy đủ
 
     public Integer getId() {
         return id;
@@ -42,11 +34,11 @@ public class Product {
         this.name = name;
     }
 
-    public Integer getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(Integer price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 

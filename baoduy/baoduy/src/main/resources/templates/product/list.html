@@ -1,63 +1,357 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/layout}">
+      layout:decorate="layout/layout">
+
+<head>
+    <title>Danh sách sản phẩm</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0f1a;
+            --surface: #111827;
+            --surface2: #1a2235;
+            --border: #1e2d45;
+            --accent: #3b82f6;
+            --accent2: #06b6d4;
+            --danger: #f43f5e;
+            --warning: #f59e0b;
+            --success: #10b981;
+            --text: #e2e8f0;
+            --text-muted: #64748b;
+            --glow: 0 0 20px rgba(59,130,246,0.25);
+        }
+
+        body, .product-page * {
+            font-family: 'Sora', sans-serif;
+        }
+
+        .product-page {
+            background: var(--bg);
+            min-height: 100vh;
+            padding: 2rem;
+            color: var(--text);
+        }
+
+        /* Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+        }
+
+        .page-header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 120px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .page-title .icon {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .btn-add {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.6rem 1.4rem;
+            background: linear-gradient(135deg, var(--accent), #2563eb);
+            color: #fff;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px rgba(59,130,246,0.35);
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59,130,246,0.5);
+            color: #fff;
+        }
+
+        /* Table container */
+        .table-wrap {
+            background: var(--surface);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--surface2);
+        }
+
+        thead th {
+            padding: 1rem 1.25rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s ease;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--surface2);
+        }
+
+        td {
+            padding: 1rem 1.25rem;
+            font-size: 0.875rem;
+            vertical-align: middle;
+        }
+
+        /* ID cell */
+        .cell-id {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* Name cell */
+        .cell-name {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        /* Price cell */
+        .cell-price {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            color: #34d399;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        /* Image */
+        .cell-image {
+            text-align: center;
+        }
+
+        .product-img {
+            width: 80px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            transition: transform 0.2s ease;
+        }
+
+        .product-img:hover {
+            transform: scale(1.08);
+        }
+
+        .img-placeholder {
+            width: 80px;
+            height: 60px;
+            background: var(--surface2);
+            border-radius: 8px;
+            border: 1px dashed var(--border);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 1.25rem;
+        }
+
+        /* Category badge */
+        .cell-category {
+            text-align: center;
+        }
+
+        .badge-cat {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+        }
+
+        .badge-laptop {
+            background: rgba(59,130,246,0.15);
+            color: #93c5fd;
+            border: 1px solid rgba(59,130,246,0.3);
+        }
+
+        .badge-phone {
+            background: rgba(168,85,247,0.15);
+            color: #d8b4fe;
+            border: 1px solid rgba(168,85,247,0.3);
+        }
+
+        /* Actions */
+        .cell-actions {
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.4rem 0.85rem;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            margin: 0 0.2rem;
+        }
+
+        .btn-edit {
+            background: rgba(245,158,11,0.12);
+            color: #fbbf24;
+            border: 1px solid rgba(245,158,11,0.3);
+        }
+
+        .btn-edit:hover {
+            background: rgba(245,158,11,0.25);
+            color: #fde68a;
+            transform: translateY(-1px);
+        }
+
+        .btn-delete {
+            background: rgba(244,63,94,0.12);
+            color: #fb7185;
+            border: 1px solid rgba(244,63,94,0.3);
+        }
+
+        .btn-delete:hover {
+            background: rgba(244,63,94,0.25);
+            color: #fda4af;
+            transform: translateY(-1px);
+        }
+
+        /* Align helpers */
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+
+        /* Fade-in rows */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        tbody tr {
+            animation: fadeUp 0.3s ease both;
+        }
+
+        tbody tr:nth-child(1) { animation-delay: 0.04s; }
+        tbody tr:nth-child(2) { animation-delay: 0.08s; }
+        tbody tr:nth-child(3) { animation-delay: 0.12s; }
+        tbody tr:nth-child(4) { animation-delay: 0.16s; }
+        tbody tr:nth-child(5) { animation-delay: 0.20s; }
+        tbody tr:nth-child(n+6) { animation-delay: 0.24s; }
+    </style>
+</head>
+
+<body>
 
 <div layout:fragment="content">
+    <div class="product-page">
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="text-primary">📦 Danh sách sản phẩm</h3>
-        <a href="/products/create" class="btn btn-success">
-            ➕ Thêm sản phẩm
-        </a>
+        <!-- Header -->
+        <div class="page-header">
+            <h3 class="page-title">
+                <span class="icon">▣</span> Danh sách sản phẩm
+            </h3>
+            <a th:href="@{/products/create}" class="btn-add">
+                ＋ Thêm sản phẩm
+            </a>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th class="text-center">ID</th>
+                    <th>Tên sản phẩm</th>
+                    <th class="text-right">Giá</th>
+                    <th class="text-center">Hình ảnh</th>
+                    <th class="text-center">Danh mục</th>
+                    <th class="text-center">Thao tác</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="p : ${products}">
+                    <td class="cell-id" th:text="${p.id}"></td>
+
+                    <td class="cell-name" th:text="${p.name}"></td>
+
+                    <td class="cell-price">
+                        <span th:text="${#numbers.formatInteger(p.price, 0, 'COMMA')} + ' ₫'"></span>
+                    </td>
+
+                    <td class="cell-image">
+                        <img th:if="${p.image != null}"
+                             th:src="@{/images/{img}(img=${p.image})}"
+                             class="product-img"
+                             th:alt="${p.name}">
+                        <div th:if="${p.image == null}" class="img-placeholder">🖼</div>
+                    </td>
+
+                    <td class="cell-category">
+                        <span th:if="${p.categoryId == 1}" class="badge-cat badge-laptop">💻 Laptop</span>
+                        <span th:if="${p.categoryId != 1}" class="badge-cat badge-phone">📱 Điện thoại</span>
+                    </td>
+
+                    <td class="cell-actions">
+                        <a th:href="@{/products/edit/{id}(id=${p.id})}" class="btn-action btn-edit">✏ Sửa</a>
+                        <a th:href="@{/products/delete/{id}(id=${p.id})}" class="btn-action btn-delete">✕ Xóa</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
     </div>
-
-    <table class="table table-bordered table-hover align-middle text-center">
-        <thead class="table-primary">
-        <tr>
-            <th>ID</th>
-            <th>Tên sản phẩm</th>
-            <th>Giá</th>
-            <th>Hình ảnh</th>
-            <th>Danh mục</th>
-            <th>Thao tác</th>
-        </tr>
-        </thead>
-
-        <tbody>
-        <tr th:each="p : ${products}">
-            <td th:text="${p.id}"></td>
-
-            <td class="text-start" th:text="${p.name}"></td>
-
-            <td class="text-danger fw-bold"
-                th:text="${p.price} + ' đ'"></td>
-
-            <td>
-                <img th:src="@{'/images/' + ${p.image}}"
-                     class="img-thumbnail"
-                     style="width:90px; height:70px; object-fit:cover;">
-            </td>
-
-            <td>
-                <span class="badge bg-info"
-                      th:text="${p.categoryId == 1 ? 'Laptop' : 'Điện thoại'}">
-                </span>
-            </td>
-
-            <td>
-                <a th:href="@{'/products/edit/' + ${p.id}}"
-                   class="btn btn-warning btn-sm">Sửa</a>
-
-                <a th:href="@{'/products/delete/' + ${p.id}}"
-                   class="btn btn-danger btn-sm"
-                   onclick="return confirm('Bạn chắc chắn muốn xóa?')">
-                    Xóa
-                </a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-
 </div>
+
+</body>
 </html>

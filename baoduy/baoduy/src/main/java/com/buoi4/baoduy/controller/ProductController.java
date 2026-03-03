@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/products")
@@ -22,9 +23,10 @@ public class ProductController {
     @Autowired
     private ProductService service;
 
-    // ⚠️ QUAN TRỌNG: phải là đường dẫn tuyệt đối khi chạy
+    // Đường dẫn upload chuẩn khi chạy Spring Boot
     private final Path UPLOAD_DIR =
-            Paths.get("src/main/resources/static/images");
+            Paths.get(System.getProperty("user.dir"),
+                    "src/main/resources/static/images");
 
     private final List<Category> categories = List.of(
             new Category(1, "Laptop"),
@@ -32,13 +34,13 @@ public class ProductController {
     );
 
     @GetMapping
-    public String list(Model model){
+    public String list(Model model) {
         model.addAttribute("products", service.getAll());
         return "product/list";
     }
 
     @GetMapping("/create")
-    public String create(Model model){
+    public String create(Model model) {
         model.addAttribute("product", new Product());
         model.addAttribute("categories", categories);
         return "product/form";
@@ -50,41 +52,52 @@ public class ProductController {
                        @RequestParam("file") MultipartFile file,
                        Model model) throws IOException {
 
-        if(result.hasErrors()){
+        if (result.hasErrors()) {
             model.addAttribute("categories", categories);
             return "product/form";
         }
 
-        // Tạo thư mục nếu chưa có
-        if(!Files.exists(UPLOAD_DIR)){
+        // Tạo thư mục nếu chưa tồn tại
+        if (!Files.exists(UPLOAD_DIR)) {
             Files.createDirectories(UPLOAD_DIR);
         }
 
-        if(!file.isEmpty()){
-            String fileName = file.getOriginalFilename();
+        // Upload ảnh
+        if (!file.isEmpty()) {
+            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
             Path filePath = UPLOAD_DIR.resolve(fileName);
+
             Files.copy(file.getInputStream(), filePath,
                     StandardCopyOption.REPLACE_EXISTING);
+
             product.setImage(fileName);
         }
 
-        if(product.getId() == null)
+        if (product.getId() == null) {
             service.add(product);
-        else
+        } else {
             service.update(product);
+        }
 
         return "redirect:/products";
     }
 
     @GetMapping("/edit/{id}")
-    public String edit(@PathVariable Integer id, Model model){
-        model.addAttribute("product", service.findById(id));
+    public String edit(@PathVariable Integer id, Model model) {
+
+        Product product = service.findById(id);
+
+        if (product == null) {
+            return "redirect:/products";
+        }
+
+        model.addAttribute("product", product);
         model.addAttribute("categories", categories);
         return "product/form";
     }
 
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable Integer id){
+    public String delete(@PathVariable Integer id) {
         service.delete(id);
         return "redirect:/products";
     }

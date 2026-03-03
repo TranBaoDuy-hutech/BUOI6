@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-BaoduyApplication<baoduy>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.buoi4.baoduy.BaoduyApplication",
+            "projectName": "baoduy",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
