@@ -3,6 +3,7 @@ package com.buoi4.baoduy.controller;
 import com.buoi4.baoduy.model.Category;
 import com.buoi4.baoduy.model.Product;
 import com.buoi4.baoduy.service.ProductService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,17 +14,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
 @Controller
-@RequestMapping("/products")
 public class ProductController {
 
     @Autowired
     private ProductService service;
 
-    // Đường dẫn upload chuẩn khi chạy Spring Boot
     private final Path UPLOAD_DIR =
             Paths.get(System.getProperty("user.dir"),
                     "src/main/resources/static/images");
@@ -33,20 +33,44 @@ public class ProductController {
             new Category(2, "Điện thoại")
     );
 
-    @GetMapping
-    public String list(Model model) {
+    // ── Trang Admin: có đầy đủ chức năng ──────────────────────────────────
+    @GetMapping("/products")
+    public String list(Model model, Principal principal, HttpServletRequest request) {
         model.addAttribute("products", service.getAll());
+
+        if (principal != null) {
+            model.addAttribute("username", principal.getName());
+            model.addAttribute("isAdmin", request.isUserInRole("ROLE_ADMIN"));
+        } else {
+            model.addAttribute("username", null);
+            model.addAttribute("isAdmin", false);
+        }
+
         return "product/list";
     }
 
-    @GetMapping("/create")
+    // ── Trang User: chỉ xem sản phẩm ──────────────────────────────────────
+    @GetMapping("/shop")
+    public String shop(Model model, Principal principal) {
+        model.addAttribute("products", service.getAll());
+
+        if (principal != null) {
+            model.addAttribute("username", principal.getName());
+        }
+
+        return "product/list-user";
+    }
+
+    // ── Tạo sản phẩm ──────────────────────────────────────────────────────
+    @GetMapping("/products/create")
     public String create(Model model) {
         model.addAttribute("product", new Product());
         model.addAttribute("categories", categories);
         return "product/form";
     }
 
-    @PostMapping("/save")
+    // ── Lưu sản phẩm ──────────────────────────────────────────────────────
+    @PostMapping("/products/save")
     public String save(@Valid @ModelAttribute Product product,
                        BindingResult result,
                        @RequestParam("file") MultipartFile file,
@@ -57,19 +81,14 @@ public class ProductController {
             return "product/form";
         }
 
-        // Tạo thư mục nếu chưa tồn tại
         if (!Files.exists(UPLOAD_DIR)) {
             Files.createDirectories(UPLOAD_DIR);
         }
 
-        // Upload ảnh
         if (!file.isEmpty()) {
             String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
             Path filePath = UPLOAD_DIR.resolve(fileName);
-
-            Files.copy(file.getInputStream(), filePath,
-                    StandardCopyOption.REPLACE_EXISTING);
-
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
             product.setImage(fileName);
         }
 
@@ -82,9 +101,9 @@ public class ProductController {
         return "redirect:/products";
     }
 
-    @GetMapping("/edit/{id}")
+    // ── Sửa sản phẩm ──────────────────────────────────────────────────────
+    @GetMapping("/products/edit/{id}")
     public String edit(@PathVariable Integer id, Model model) {
-
         Product product = service.findById(id);
 
         if (product == null) {
@@ -96,7 +115,8 @@ public class ProductController {
         return "product/form";
     }
 
-    @GetMapping("/delete/{id}")
+    // ── Xóa sản phẩm ──────────────────────────────────────────────────────
+    @GetMapping("/products/delete/{id}")
     public String delete(@PathVariable Integer id) {
         service.delete(id);
         return "redirect:/products";

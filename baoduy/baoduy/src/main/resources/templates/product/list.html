@@ -299,7 +299,7 @@
             <h3 class="page-title">
                 <span class="icon">▣</span> Danh sách sản phẩm
             </h3>
-            <a th:href="@{/products/create}" class="btn-add">
+            <a th:href="@{/products/create}"sec:authorize="hasRole('ADMIN')">
                 ＋ Thêm sản phẩm
             </a>
         </div>

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout/layout">
+
+<head>
+    <title>Sản phẩm</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0f1a;
+            --surface: #111827;
+            --surface2: #1a2235;
+            --border: #1e2d45;
+            --accent: #3b82f6;
+            --accent2: #06b6d4;
+            --text: #e2e8f0;
+            --text-muted: #64748b;
+        }
+
+        * { font-family: 'Sora', sans-serif; box-sizing: border-box; }
+
+        .shop-page {
+            background: var(--bg);
+            min-height: 100vh;
+            padding: 2rem;
+            color: var(--text);
+        }
+
+        /* ── Header ── */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+        }
+
+        .page-header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px; left: 0;
+            width: 120px; height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .page-title .icon {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* User badge */
+        .user-info {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.45rem 1rem;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            font-size: 0.82rem;
+        }
+
+        .user-avatar {
+            width: 26px; height: 26px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .user-name {
+            font-weight: 600;
+            max-width: 140px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .btn-logout {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.6rem 1.2rem;
+            background: rgba(244,63,94,0.1);
+            color: #fb7185;
+            border: 1px solid rgba(244,63,94,0.3);
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Sora', sans-serif;
+        }
+
+        .btn-logout:hover {
+            background: rgba(244,63,94,0.22);
+            color: #fda4af;
+            border-color: rgba(244,63,94,0.55);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(244,63,94,0.2);
+        }
+
+        /* ── Search bar ── */
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .search-input {
+            flex: 1;
+            max-width: 400px;
+            padding: 0.65rem 1rem 0.65rem 2.75rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 0.875rem;
+            font-family: 'Sora', sans-serif;
+            outline: none;
+            transition: border-color 0.2s;
+            position: relative;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+        }
+
+        .search-wrapper {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.9rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+
+        .filter-select {
+            padding: 0.65rem 1rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 0.875rem;
+            font-family: 'Sora', sans-serif;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .filter-select:focus {
+            border-color: var(--accent);
+        }
+
+        /* ── Product grid ── */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .product-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+            animation: fadeUp 0.35s ease both;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 36px rgba(0,0,0,0.5);
+            border-color: rgba(59,130,246,0.35);
+        }
+
+        /* Stagger animation */
+        .product-card:nth-child(1)  { animation-delay: 0.04s; }
+        .product-card:nth-child(2)  { animation-delay: 0.08s; }
+        .product-card:nth-child(3)  { animation-delay: 0.12s; }
+        .product-card:nth-child(4)  { animation-delay: 0.16s; }
+        .product-card:nth-child(5)  { animation-delay: 0.20s; }
+        .product-card:nth-child(6)  { animation-delay: 0.24s; }
+        .product-card:nth-child(n+7){ animation-delay: 0.28s; }
+
+        .card-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background: var(--surface2);
+            display: block;
+        }
+
+        .card-img-placeholder {
+            width: 100%;
+            height: 180px;
+            background: var(--surface2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-body {
+            padding: 1rem 1.25rem 1.25rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .card-category {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            width: fit-content;
+        }
+
+        .cat-laptop {
+            background: rgba(59,130,246,0.15);
+            color: #93c5fd;
+            border: 1px solid rgba(59,130,246,0.3);
+        }
+
+        .cat-phone {
+            background: rgba(168,85,247,0.15);
+            color: #d8b4fe;
+            border: 1px solid rgba(168,85,247,0.3);
+        }
+
+        .card-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text);
+            line-height: 1.4;
+            margin-top: 0.15rem;
+        }
+
+        .card-price {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #34d399;
+            margin-top: auto;
+            padding-top: 0.5rem;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 5rem 2rem;
+            color: var(--text-muted);
+            grid-column: 1 / -1;
+        }
+
+        .empty-state .emoji { font-size: 3rem; margin-bottom: 1rem; }
+        .empty-state p { font-size: 1rem; }
+
+        /* Count badge */
+        .count-badge {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .count-badge span {
+            color: var(--accent2);
+            font-weight: 600;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+
+<body>
+
+<div layout:fragment="content">
+    <div class="shop-page">
+
+        <!-- Header -->
+        <div class="page-header">
+            <h3 class="page-title">
+                <span class="icon">🛍</span> Sản phẩm
+            </h3>
+
+            <div class="header-right">
+                <!-- Người dùng đang đăng nhập -->
+                <div class="user-info" th:if="${username != null}">
+                    <div class="user-avatar">
+                        <span th:text="${#strings.toUpperCase(#strings.substring(username, 0, 1))}"></span>
+                    </div>
+                    <span class="user-name" th:text="${username}"></span>
+                </div>
+
+                <!-- Đăng xuất -->
+                <form th:action="@{/logout}" method="post" style="margin:0;padding:0;">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="btn-logout">⏻ Đăng xuất</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Search & Filter -->
+        <div class="search-bar">
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text"
+                       class="search-input"
+                       id="searchInput"
+                       placeholder="Tìm kiếm sản phẩm..."
+                       onkeyup="filterProducts()">
+            </div>
+            <select class="filter-select" id="categoryFilter" onchange="filterProducts()">
+                <option value="all">Tất cả danh mục</option>
+                <option value="1">💻 Laptop</option>
+                <option value="2">📱 Điện thoại</option>
+            </select>
+        </div>
+
+        <!-- Count -->
+        <div class="count-badge">
+            Hiển thị <span id="countDisplay" th:text="${#lists.size(products)}"></span> sản phẩm
+        </div>
+
+        <!-- Product Grid -->
+        <div class="product-grid" id="productGrid">
+
+            <div th:each="p : ${products}"
+                 class="product-card"
+                 th:attr="data-name=${#strings.toLowerCase(p.name)}, data-category=${p.categoryId}">
+
+                <!-- Hình ảnh -->
+                <img th:if="${p.image != null}"
+                     th:src="@{/images/{img}(img=${p.image})}"
+                     class="card-image"
+                     th:alt="${p.name}">
+                <div th:if="${p.image == null}" class="card-img-placeholder">🖼</div>
+
+                <!-- Nội dung -->
+                <div class="card-body">
+                    <span th:if="${p.categoryId == 1}" class="card-category cat-laptop">💻 Laptop</span>
+                    <span th:if="${p.categoryId != 1}" class="card-category cat-phone">📱 Điện thoại</span>
+
+                    <div class="card-name" th:text="${p.name}"></div>
+
+                    <div class="card-price"
+                         th:text="${#numbers.formatInteger(p.price, 0, 'COMMA')} + ' ₫'"></div>
+                </div>
+            </div>
+
+            <!-- Empty state khi không tìm thấy -->
+            <div class="empty-state" id="emptyState" style="display:none;">
+                <div class="emoji">🔍</div>
+                <p>Không tìm thấy sản phẩm phù hợp</p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function filterProducts() {
+        const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
+        const category = document.getElementById('categoryFilter').value;
+        const cards = document.querySelectorAll('.product-card');
+        let visible = 0;
+
+        cards.forEach(card => {
+            const name = card.dataset.name || '';
+            const cat  = card.dataset.category || '';
+
+            const matchName = name.includes(keyword);
+            const matchCat  = category === 'all' || cat === category;
+
+            if (matchName && matchCat) {
+                card.style.display = '';
+                visible++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        document.getElementById('countDisplay').textContent = visible;
+        document.getElementById('emptyState').style.display = visible === 0 ? 'block' : 'none';
+    }
+</script>
+
+</body>
+</html>
