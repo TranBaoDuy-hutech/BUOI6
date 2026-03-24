@@ -14,36 +14,47 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import java.io.IOException;
 
 @Configuration
-
 public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/products/**").hasRole("ADMIN")
-                        .requestMatchers("/shop/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/images/**", "/css/**", "/js/**").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .successHandler(roleBasedSuccessHandler()) // ← phân quyền redirect theo role
-                        .permitAll()
-                )
-                .logout(logout -> logout
-                        .logoutSuccessUrl("/login?logout")
-                        .permitAll()
-                );
+            .authorizeHttpRequests(auth -> auth
+                // Static resources
+                .requestMatchers("/images/**", "/css/**", "/js/**").permitAll()
+
+                // Chỉ ADMIN mới được CRUD
+                .requestMatchers("/products/create",
+                                 "/products/save",
+                                 "/products/edit/**",
+                                 "/products/delete/**").hasRole("ADMIN")
+
+                // Xem danh sách sản phẩm: cả 2 role
+                .requestMatchers("/products", "/products/").hasAnyRole("USER", "ADMIN")
+
+                // Shop
+                .requestMatchers("/shop/**").hasAnyRole("USER", "ADMIN")
+
+                // Giỏ hàng + đặt hàng: cả 2 role
+                .requestMatchers("/cart/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers("/checkout/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers("/order-success").hasAnyRole("USER", "ADMIN")
+
+                .anyRequest().authenticated()
+            )
+            .formLogin(form -> form
+                .loginPage("/login")
+                .successHandler(roleBasedSuccessHandler())
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutSuccessUrl("/login?logout")
+                .permitAll()
+            );
 
         return http.build();
     }
 
-    /**
-     * Sau khi login thành công:
-     *  - ADMIN  → /products
-     *  - USER   → /shop
-     */
     @Bean
     public AuthenticationSuccessHandler roleBasedSuccessHandler() {
         return (HttpServletRequest request,
@@ -53,7 +64,7 @@ public class SecurityConfig {
             boolean isAdmin = authentication.getAuthorities()
                     .contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
 
-            String redirectUrl = isAdmin ? "/products" : "/shop";
+            String redirectUrl = isAdmin ? "/products" : "/products";
             response.sendRedirect(request.getContextPath() + redirectUrl);
         };
     }

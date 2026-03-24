@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout/layout">
+<head>
+    <title>Giỏ hàng</title>
+    <style>
+        /* dùng lại CSS variable từ layout */
+        .cart-page { padding: 2rem; color: var(--text); }
+        .page-title { font-size: 1.75rem; font-weight: 700; margin-bottom: 1.5rem; }
+        .table-wrap { background: var(--surface); border-radius: 16px;
+                      border: 1px solid var(--border); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: var(--surface2); }
+        thead th { padding: 1rem; font-size: 0.75rem; font-weight: 600;
+                   text-transform: uppercase; color: var(--text-muted);
+                   letter-spacing: 0.08em; }
+        td { padding: 1rem; font-size: 0.875rem; border-bottom: 1px solid var(--border);
+             vertical-align: middle; }
+        .total-bar { display: flex; justify-content: flex-end; align-items: center;
+                     gap: 2rem; margin-top: 1.5rem; }
+        .total-label { font-size: 1.1rem; font-weight: 600; color: var(--text-muted); }
+        .total-value { font-size: 1.4rem; font-weight: 700; color: #34d399; }
+        .btn-checkout { padding: 0.7rem 2rem; background: var(--accent);
+                        color: #fff; border-radius: 8px; text-decoration: none;
+                        font-weight: 600; }
+        .btn-remove { color: #fb7185; text-decoration: none; font-size: 0.8rem; }
+        .empty-msg { text-align: center; padding: 3rem; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="cart-page">
+        <h3 class="page-title">🛒 Giỏ hàng</h3>
+
+        <div th:if="${#lists.isEmpty(cartItems)}" class="empty-msg">
+            <p>Giỏ hàng trống. <a th:href="@{/products}">Tiếp tục mua sắm →</a></p>
+        </div>
+
+        <div th:if="${!#lists.isEmpty(cartItems)}">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th style="text-align:right">Giá</th>
+                        <th style="text-align:center">Số lượng</th>
+                        <th style="text-align:right">Thành tiền</th>
+                        <th style="text-align:center">Xóa</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${cartItems}">
+                        <td>
+                            <div style="display:flex;align-items:center;gap:0.75rem;">
+                                <img th:if="${item.image != null}"
+                                     th:src="@{/images/{img}(img=${item.image})}"
+                                     style="width:60px;height:45px;object-fit:cover;border-radius:6px;">
+                                <span th:text="${item.name}" style="font-weight:600;"></span>
+                            </div>
+                        </td>
+                        <td style="text-align:right;font-family:monospace;color:#34d399;">
+                            <span th:text="${#numbers.formatInteger(item.price, 0, 'COMMA')} + ' ₫'"></span>
+                        </td>
+                        <td style="text-align:center;" th:text="${item.quantity}"></td>
+                        <td style="text-align:right;font-family:monospace;color:#fbbf24;font-weight:700;">
+                            <span th:text="${#numbers.formatInteger(item.total, 0, 'COMMA')} + ' ₫'"></span>
+                        </td>
+                        <td style="text-align:center;">
+                            <a th:href="@{/cart/remove/{id}(id=${item.productId})}"
+                               class="btn-remove">✕ Xóa</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="total-bar">
+                <span class="total-label">Tổng cộng:</span>
+                <span class="total-value"
+                      th:text="${#numbers.formatInteger(total, 0, 'COMMA')} + ' ₫'"></span>
+                <a th:href="@{/checkout}" class="btn-checkout">Đặt hàng →</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
