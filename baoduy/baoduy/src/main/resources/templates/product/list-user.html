@@ -69,7 +69,6 @@
             gap: 1rem;
         }
 
-        /* User badge */
         .user-info {
             display: inline-flex;
             align-items: center;
@@ -100,6 +99,29 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+        }
+
+        /* Cart icon button */
+        .btn-cart-icon {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.6rem 1.2rem;
+            background: rgba(16,185,129,0.1);
+            color: #34d399;
+            border: 1px solid rgba(16,185,129,0.3);
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-cart-icon:hover {
+            background: rgba(16,185,129,0.22);
+            color: #6ee7b7;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(16,185,129,0.2);
         }
 
         .btn-logout {
@@ -134,25 +156,6 @@
             margin-bottom: 2rem;
         }
 
-        .search-input {
-            flex: 1;
-            max-width: 400px;
-            padding: 0.65rem 1rem 0.65rem 2.75rem;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: var(--text);
-            font-size: 0.875rem;
-            font-family: 'Sora', sans-serif;
-            outline: none;
-            transition: border-color 0.2s;
-            position: relative;
-        }
-
-        .search-input:focus {
-            border-color: var(--accent);
-        }
-
         .search-wrapper {
             position: relative;
             flex: 1;
@@ -169,6 +172,21 @@
             pointer-events: none;
         }
 
+        .search-input {
+            width: 100%;
+            padding: 0.65rem 1rem 0.65rem 2.75rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 0.875rem;
+            font-family: 'Sora', sans-serif;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus { border-color: var(--accent); }
+
         .filter-select {
             padding: 0.65rem 1rem;
             background: var(--surface);
@@ -182,9 +200,8 @@
             transition: border-color 0.2s;
         }
 
-        .filter-select:focus {
-            border-color: var(--accent);
-        }
+        .filter-select:focus { border-color: var(--accent); }
+        .filter-select option { background: var(--surface2); }
 
         /* ── Product grid ── */
         .product-grid {
@@ -210,7 +227,6 @@
             border-color: rgba(59,130,246,0.35);
         }
 
-        /* Stagger animation */
         .product-card:nth-child(1)  { animation-delay: 0.04s; }
         .product-card:nth-child(2)  { animation-delay: 0.08s; }
         .product-card:nth-child(3)  { animation-delay: 0.12s; }
@@ -223,7 +239,6 @@
             width: 100%;
             height: 180px;
             object-fit: cover;
-            background: var(--surface2);
             display: block;
         }
 
@@ -287,6 +302,64 @@
             padding-top: 0.5rem;
         }
 
+        /* ── Add to cart form ── */
+        .card-footer {
+            padding: 0 1.25rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .qty-input {
+            width: 52px;
+            padding: 0.45rem 0.4rem;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 0.85rem;
+            font-family: 'JetBrains Mono', monospace;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .qty-input:focus { border-color: var(--accent); }
+
+        .btn-add-cart {
+            flex: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            padding: 0.5rem 0.75rem;
+            background: rgba(16,185,129,0.12);
+            color: #34d399;
+            border: 1px solid rgba(16,185,129,0.3);
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Sora', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        .btn-add-cart:hover {
+            background: rgba(16,185,129,0.25);
+            color: #6ee7b7;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16,185,129,0.2);
+        }
+
+        /* Count badge */
+        .count-badge {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .count-badge span { color: var(--accent2); font-weight: 600; }
+
         /* Empty state */
         .empty-state {
             text-align: center;
@@ -298,18 +371,6 @@
         .empty-state .emoji { font-size: 3rem; margin-bottom: 1rem; }
         .empty-state p { font-size: 1rem; }
 
-        /* Count badge */
-        .count-badge {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-bottom: 1rem;
-        }
-
-        .count-badge span {
-            color: var(--accent2);
-            font-weight: 600;
-        }
-
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(10px); }
             to   { opacity: 1; transform: translateY(0); }
@@ -318,24 +379,25 @@
 </head>
 
 <body>
-
 <div layout:fragment="content">
     <div class="shop-page">
 
-        <!-- Header -->
+        <!-- ── Header ── -->
         <div class="page-header">
             <h3 class="page-title">
                 <span class="icon">🛍</span> Sản phẩm
             </h3>
 
             <div class="header-right">
-                <!-- Người dùng đang đăng nhập -->
                 <div class="user-info" th:if="${username != null}">
                     <div class="user-avatar">
                         <span th:text="${#strings.toUpperCase(#strings.substring(username, 0, 1))}"></span>
                     </div>
                     <span class="user-name" th:text="${username}"></span>
                 </div>
+
+                <!-- Nút giỏ hàng -->
+                <a th:href="@{/cart}" class="btn-cart-icon">🛒 Giỏ hàng</a>
 
                 <!-- Đăng xuất -->
                 <form th:action="@{/logout}" method="post" style="margin:0;padding:0;">
@@ -345,7 +407,7 @@
             </div>
         </div>
 
-        <!-- Search & Filter -->
+        <!-- ── Search & Filter (client-side) ── -->
         <div class="search-bar">
             <div class="search-wrapper">
                 <span class="search-icon">🔍</span>
@@ -364,15 +426,16 @@
 
         <!-- Count -->
         <div class="count-badge">
-            Hiển thị <span id="countDisplay" th:text="${#lists.size(products)}"></span> sản phẩm
+            Hiển thị <span id="countDisplay"
+                           th:text="${#lists.size(products)}"></span> sản phẩm
         </div>
 
-        <!-- Product Grid -->
+        <!-- ── Product Grid ── -->
         <div class="product-grid" id="productGrid">
 
             <div th:each="p : ${products}"
                  class="product-card"
-                 th:attr="data-name=${#strings.toLowerCase(p.name)}, data-category=${p.categoryId}">
+                 th:attr="data-name=${#strings.toLowerCase(p.name)},data-category=${p.categoryId}">
 
                 <!-- Hình ảnh -->
                 <img th:if="${p.image != null}"
@@ -383,17 +446,32 @@
 
                 <!-- Nội dung -->
                 <div class="card-body">
-                    <span th:if="${p.categoryId == 1}" class="card-category cat-laptop">💻 Laptop</span>
-                    <span th:if="${p.categoryId != 1}" class="card-category cat-phone">📱 Điện thoại</span>
+                    <span th:if="${p.categoryId == 1}"
+                          class="card-category cat-laptop">💻 Laptop</span>
+                    <span th:if="${p.categoryId != 1}"
+                          class="card-category cat-phone">📱 Điện thoại</span>
 
                     <div class="card-name" th:text="${p.name}"></div>
 
                     <div class="card-price"
                          th:text="${#numbers.formatInteger(p.price, 0, 'COMMA')} + ' ₫'"></div>
                 </div>
+
+                <!-- ── Câu 5: Thêm vào giỏ hàng ── -->
+                <div class="card-footer">
+                    <form th:action="@{/cart/add}" method="post"
+                          style="display:flex;align-items:center;gap:0.5rem;width:100%;">
+                        <input type="hidden" name="productId" th:value="${p.id}">
+                        <input type="number" name="quantity"
+                               value="1" min="1" max="99"
+                               class="qty-input">
+                        <button type="submit" class="btn-add-cart">🛒 Thêm vào giỏ</button>
+                    </form>
+                </div>
+
             </div>
 
-            <!-- Empty state khi không tìm thấy -->
+            <!-- Empty state -->
             <div class="empty-state" id="emptyState" style="display:none;">
                 <div class="emoji">🔍</div>
                 <p>Không tìm thấy sản phẩm phù hợp</p>
@@ -405,13 +483,13 @@
 
 <script>
     function filterProducts() {
-        const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
+        const keyword  = document.getElementById('searchInput').value.toLowerCase().trim();
         const category = document.getElementById('categoryFilter').value;
-        const cards = document.querySelectorAll('.product-card');
-        let visible = 0;
+        const cards    = document.querySelectorAll('.product-card');
+        let visible    = 0;
 
         cards.forEach(card => {
-            const name = card.dataset.name || '';
+            const name = card.dataset.name     || '';
             const cat  = card.dataset.category || '';
 
             const matchName = name.includes(keyword);
